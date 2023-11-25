@@ -14,7 +14,7 @@
 #include <iostream>
 #include <gpiod.h>
 
-LightController::LightController(int pin, time_t &dailyOn, time_t &dailyOff) : dailyOnTime(dailyOn), dailyOffTime(dailyOff) {
+LightController::LightController(int pin, time_t &dailyOn, time_t &dailyOff) : dailyOnTime(dailyOn), dailyOffTime(dailyOff), duration(0) {
     // Set the pin number
     pinNum = pin;
 
