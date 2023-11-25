@@ -1,111 +1,97 @@
-/*
-    LightController.cpp - Library for controlling a light.
-
-    Desc:   Library for controlling lights on the Raspberry Pi using gpiod and mosfets (active high)
-
-    g++ -I/home/kpf5297/Code/ManualControl driver.cpp Logging.cpp LightController.cpp -o D -lpigpio -lgpiod -lrt -lpthread
-
-
-    Author: Kevin Fox
-    Date:   23 NOV 2023
-
-*/
 #include "LightController.h"
-#include <iostream>
-#include <gpiod.h>
 
-LightController::LightController(int pin, time_t &dailyOn, time_t &dailyOff) : dailyOnTime(dailyOn), dailyOffTime(dailyOff), pinNum(pin), on(false) {
+LightController::LightController(int pin, const std::tm& dailyOn, const std::tm& dailyOff) {
+    // Set the pin number
+    pinNum = pin;
 
-    // Open the GPIO chip
+    // Set the daily on/off times
+    dailyOnTime = dailyOn;
+    dailyOffTime = dailyOff;
+
+    // Set the initial state to off
+    on = false;
+
+    // Open the chip
     chip = gpiod_chip_open("/dev/gpiochip0");
-    if (!chip) {
-        std::cout << "Error opening GPIO chip" << std::endl;
-        exit(1);
-    }
 
-    // Get the GPIO line
+    // Get the line
     line = gpiod_chip_get_line(chip, pinNum);
-    if (!line) {
-        std::cout << "Error getting GPIO line" << std::endl;
-        exit(1);
-    }
 
-    // Request the GPIO line
-    if (gpiod_line_request_output(line, "LightController", 0) < 0) {
-        std::cout << "Error requesting GPIO line" << std::endl;
-        exit(1);
-    }
+    // Request the line
+    gpiod_line_request_output(line, "LED", 0);
 }
 
-LightController::LightController(int pin) : pinNum(pin), on(false) {
+LightController::LightController(int pin) {
+    // Set the pin number
+    pinNum = pin;
 
-    // Open the GPIO chip
+    // Set the initial state to off
+    on = false;
+
+    // Open the chip
     chip = gpiod_chip_open("/dev/gpiochip0");
-    if (!chip) {
-        std::cout << "Error opening GPIO chip" << std::endl;
-        exit(1);
-    }
 
-    // Get the GPIO line
+    // Get the line
     line = gpiod_chip_get_line(chip, pinNum);
-    if (!line) {
-        std::cout << "Error getting GPIO line" << std::endl;
-        exit(1);
-    }
 
-    // Request the GPIO line
-    if (gpiod_line_request_output(line, "LightController", 0) < 0) {
-        std::cout << "Error requesting GPIO line" << std::endl;
-        exit(1);
-    }
+    // Request the line
+    gpiod_line_request_output(line, "LED", 0);
 }
 
 LightController::~LightController() {
-    // Release the GPIO line and close the chip
+    // Release the line
     gpiod_line_release(line);
+
+    // Close the chip
     gpiod_chip_close(chip);
 }
 
 void LightController::turnOn() {
     // Turn on the lights
     gpiod_line_set_value(line, 1);
+
+    // Set the state to on
     on = true;
 }
 
 void LightController::turnOff() {
     // Turn off the lights
     gpiod_line_set_value(line, 0);
+
+    // Set the state to off
     on = false;
 }
 
 void LightController::toggle() {
     // Toggle the lights
-    if (on) {
-        turnOff();
-    } else {
-        turnOn();
-    }
+    gpiod_line_set_value(line, !on);
+
+    // Set the state to the opposite of what it was
+    on = !on;
 }
 
 bool LightController::isOn() {
-    // Return the current state
+    // Return the state
     return on;
 }
 
-// Setters and getters for the times
-void LightController::setDailyOn(time_t &time) {
+void LightController::setDailyOn(const std::tm& time) {
+    // Set the daily on time
     dailyOnTime = time;
 }
 
-void LightController::setDailyOff(time_t &time) {
+void LightController::setDailyOff(const std::tm& time) {
+    // Set the daily off time
     dailyOffTime = time;
 }
 
-time_t LightController::getDailyOn() {
+std::tm LightController::getDailyOn() {
+    // Return the daily on time
     return dailyOnTime;
 }
 
-time_t LightController::getDailyOff() {
+std::tm LightController::getDailyOff() {
+    // Return the daily off time
     return dailyOffTime;
 }
 
@@ -119,6 +105,3 @@ std::ostream& operator<<(std::ostream& os, const LightController& lc) {
     }
     return os;
 }
-
-
-
