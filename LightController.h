@@ -1,12 +1,4 @@
-/*
-    LightController.h - 
-    
-    Desc:   Library for controlling lights on the Raspberry Pi using gpiod and mosfets (active high)
-
-    Author: Kevin Fox
-    Date:   23 NOV 2023
-
-*/
+// LightController.h
 #ifndef LIGHTCONTROLLER_H
 #define LIGHTCONTROLLER_H
 
@@ -16,7 +8,7 @@
 
 class LightController {
 public:
-    LightController(int pin, time_t &dailyOn, time_t &dailyOff);
+    LightController(int pin, const std::tm& dailyOn, const std::tm& dailyOff);
     LightController(int pin);
     ~LightController();
 
@@ -24,14 +16,13 @@ public:
     void turnOff();
     void toggle();
     bool isOn();
-    void setDailyOn(time_t &time);
-    void setDailyOff(time_t &time);
-    time_t getDailyOn();
-    time_t getDailyOff();
+    void setDailyOn(const std::tm& time);
+    void setDailyOff(const std::tm& time);
+    std::tm getDailyOn();
+    std::tm getDailyOff();
 
     // Overloaded operators
     friend std::ostream& operator<<(std::ostream& os, const LightController& lc);
-
 
 private:
     gpiod_chip *chip;
@@ -39,8 +30,8 @@ private:
     int pinNum;
     bool on;
 
-    time_t dailyOnTime;
-    time_t dailyOffTime;
+    std::tm dailyOnTime;
+    std::tm dailyOffTime;
 };
 
 #endif // LIGHTCONTROLLER_H
