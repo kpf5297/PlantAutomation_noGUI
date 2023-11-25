@@ -11,11 +11,11 @@
 #define LIGHTCONTROLLER_H
 
 #include <gpiod.h>
+#include <iostream>
 #include <ctime>
 
 class LightController {
 public:
-    // LightController(int pin, time_t &dailyOn, time_t &duration);
     LightController(int pin, time_t &dailyOn, time_t &dailyOff);
     LightController(int pin);
     ~LightController();
@@ -26,10 +26,12 @@ public:
     bool isOn();
     void setDailyOn(time_t &time);
     void setDailyOff(time_t &time);
-    void setDuration(time_t &time);
     time_t getDailyOn();
     time_t getDailyOff();
-    time_t getDuration();
+
+    // Overloaded operators
+    friend std::ostream& operator<<(std::ostream& os, const LightController& lc);
+
 
 private:
     gpiod_chip *chip;
@@ -39,7 +41,6 @@ private:
 
     time_t dailyOnTime;
     time_t dailyOffTime;
-    time_t duration;
 };
 
 #endif // LIGHTCONTROLLER_H

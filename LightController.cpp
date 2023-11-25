@@ -14,9 +14,7 @@
 #include <iostream>
 #include <gpiod.h>
 
-LightController::LightController(int pin, time_t &dailyOn, time_t &dailyOff) : dailyOnTime(dailyOn), dailyOffTime(dailyOff), duration(0) {
-    // Set the pin number
-    pinNum = pin;
+LightController::LightController(int pin, time_t &dailyOn, time_t &dailyOff) : dailyOnTime(dailyOn), dailyOffTime(dailyOff), pinNum(pin), on(false) {
 
     // Open the GPIO chip
     chip = gpiod_chip_open("/dev/gpiochip0");
@@ -37,42 +35,9 @@ LightController::LightController(int pin, time_t &dailyOn, time_t &dailyOff) : d
         std::cout << "Error requesting GPIO line" << std::endl;
         exit(1);
     }
-
-    // Set the initial state
-    on = false;
 }
 
-// LightController::LightController(int pin, time_t &dailyOn, time_t &duration) : dailyOnTime(dailyOn), duration(duration) {
-//     // Set the pin number
-//     pinNum = pin;
-
-//     // Open the GPIO chip
-//     chip = gpiod_chip_open("/dev/gpiochip0");
-//     if (!chip) {
-//         std::cout << "Error opening GPIO chip" << std::endl;
-//         exit(1);
-//     }
-
-//     // Get the GPIO line
-//     line = gpiod_chip_get_line(chip, pinNum);
-//     if (!line) {
-//         std::cout << "Error getting GPIO line" << std::endl;
-//         exit(1);
-//     }
-
-//     // Request the GPIO line
-//     if (gpiod_line_request_output(line, "LightController", 0) < 0) {
-//         std::cout << "Error requesting GPIO line" << std::endl;
-//         exit(1);
-//     }
-
-//     // Set the initial state
-//     on = false;
-// }
-
-LightController::LightController(int pin) {
-    // Set the pin number
-    pinNum = pin;
+LightController::LightController(int pin) : pinNum(pin), on(false) {
 
     // Open the GPIO chip
     chip = gpiod_chip_open("/dev/gpiochip0");
@@ -93,9 +58,6 @@ LightController::LightController(int pin) {
         std::cout << "Error requesting GPIO line" << std::endl;
         exit(1);
     }
-
-    // Set the initial state
-    on = false;
 }
 
 LightController::~LightController() {
@@ -139,10 +101,6 @@ void LightController::setDailyOff(time_t &time) {
     dailyOffTime = time;
 }
 
-void LightController::setDuration(time_t &time) {
-    duration = time;
-}
-
 time_t LightController::getDailyOn() {
     return dailyOnTime;
 }
@@ -151,8 +109,16 @@ time_t LightController::getDailyOff() {
     return dailyOffTime;
 }
 
-time_t LightController::getDuration() {
-    return duration;
+// Overloaded operators
+std::ostream& operator<<(std::ostream& os, const LightController& lc) {
+    os << "LightController: " << lc.pinNum << " is ";
+    if (lc.on) {
+        os << "on";
+    } else {
+        os << "off";
+    }
+    return os;
 }
+
 
 

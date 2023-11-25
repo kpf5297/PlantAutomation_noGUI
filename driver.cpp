@@ -1,7 +1,6 @@
 /*
     Compile with:   g++ -I/home/kpf5297/Code/ManualControl driver.cpp Logging.cpp LightController.cpp -o D -lgpiod -lrt -lpthread
 
-
 */
 
 #include <unistd.h>
@@ -15,95 +14,80 @@ int LOOP_COUNT = 3;
 
 int main() {
 
+    // Set daily on/off time for the current date
+    time_t dailyOnTime = time(NULL);
+    struct tm *onTime = localtime(&dailyOnTime);
+    // onTime->tm_mday = 25;
+    // onTime->tm_mon = 11 - 1;
+    // onTime->tm_year = 2023 - 1900;
+    onTime->tm_hour = 03;
+    onTime->tm_min = 58;
+    onTime->tm_sec = 0;
+    dailyOnTime = mktime(onTime);
+
+    // Output the daily on time
+    std::cout << "Daily on time: " << ctime(&dailyOnTime) << std::endl;
+    
+
+    time_t dailyOffTime = time(NULL);
+    struct tm *offTime = localtime(&dailyOffTime);
+    // offTime->tm_mday = 25;
+    // offTime->tm_mon = 11 - 1;
+    // offTime->tm_year = 2023 - 1900;
+    offTime->tm_hour = 03;
+    offTime->tm_min = 58;
+    offTime->tm_sec = 30;
+    dailyOffTime = mktime(offTime);
+
+    // Output the daily off time
+    std::cout << "Daily off time: " << ctime(&dailyOffTime) << std::endl;
+
+    time_t currentTime = time(NULL);
+
+    // Output the current time
+    std::cout << "Current time: " << ctime(&currentTime) << std::endl;
+
     // Create a logger
     Logger logger;
 
     // Log the event
     logger.logEvent("LED", "Starting LED test");
 
-    // Set daily on/off day and time
-    struct tm dailyOnTime;
-    dailyOnTime.tm_hour = 23;
-    dailyOnTime.tm_min = 55;
-    dailyOnTime.tm_sec = 0;
-    dailyOnTime.tm_year = 123;
-    dailyOnTime.tm_mon = 11 - 1;
-    dailyOnTime.tm_mday = 24;
+    LightController blueLED(BLUE_LED_PIN, dailyOnTime, dailyOffTime);
+    LightController greenLED(GREEN_LED_PIN, dailyOnTime, dailyOffTime);
 
-    struct tm dailyOffTime;
-    dailyOffTime.tm_hour = 00;
-    dailyOffTime.tm_min = 05;
-    dailyOffTime.tm_sec = 00;
-    dailyOffTime.tm_year = 123;
-    dailyOffTime.tm_mon = 11 - 1;
-    dailyOffTime.tm_mday = 25;
-
-    // Log the setting of start time and end time and the times
-    logger.logEvent("LED", "Setting start time and end time");
-
-    time_t ontime  = mktime(&dailyOnTime);
-    time_t offtime = mktime(&dailyOffTime);
-
-    // Lof the conversion of the times to time_t
-    logger.logEvent("LED", "Start time as time_t: " + std::to_string(ontime));
-    logger.logEvent("LED", "End time as time_t: " + std::to_string(offtime));
-
-    // output the on/off times
-    std::cout << "On time: " << ctime(&ontime) << std::endl;
-    std::cout << "Off time: " << ctime(&offtime) << std::endl;
-
-    // Get the current time
-    time_t currentTime = time(NULL);
-    std::cout << "Current time: " << ctime(&currentTime) << std::endl;
-
-    // Create the LED objects
-    LightController blueLED(BLUE_LED_PIN, ontime, offtime);
-    LightController greenLED(GREEN_LED_PIN, ontime, offtime);
-
-
-    // Loop forever (or until Ctrl-C) and turn lights on/off depending on time
+    // In an infinte while loop, turn on/off the lights based on the current time
     while (true) {
-        // Get the current time
         currentTime = time(NULL);
+
+        // Output the current time
         std::cout << "Current time: " << ctime(&currentTime) << std::endl;
 
-        // Log the current time
-        logger.logEvent("LED", "Current time: " + std::string(ctime(&currentTime)));
+        // Output the daily on time
+        std::cout << "Daily on time: " << ctime(&dailyOnTime) << std::endl;
 
-        // output the on/off times
-        std::cout << "On time: " << ctime(&ontime) << std::endl;
-        std::cout << "Off time: " << ctime(&offtime) << std::endl;
+        // Output the daily off time
+        std::cout << "Daily off time: " << ctime(&dailyOffTime) << std::endl;
 
-        // Log the on/off times
-        logger.logEvent("LED", "On time: " + std::string(ctime(&ontime)));
-        logger.logEvent("LED", "Off time: " + std::string(ctime(&offtime)));
+        // Output the logic for turning on/off the lights
+        std::cout << "Current time > dailyOnTime: " << (currentTime > dailyOnTime) << std::endl;
 
-        // Output the logic test results
-        std::cout << "Current time > ontime: " << (currentTime > ontime) << std::endl;
-        std::cout << "Current time < offtime: " << (currentTime < offtime) << std::endl;
+        std::cout << "Current time < dailyOffTime: " << (currentTime < dailyOffTime) << std::endl;
 
-                // Log the logic test results
-        logger.logEvent("LED", "Current time > ontime: " + std::to_string(currentTime > ontime));
-        logger.logEvent("LED", "Current time < offtime: " + std::to_string(currentTime < offtime));
-
-        // Check if the current time is between the on/off times
-        if (currentTime > ontime && currentTime < offtime) {
-            // Turn the lights on
+        if (currentTime > dailyOnTime && currentTime < dailyOffTime) {
             blueLED.turnOn();
             greenLED.turnOn();
-
-            // Log the event
-            logger.logEvent("LED", "Turning lights on");
-
         } else {
-            // Turn the lights off
             blueLED.turnOff();
             greenLED.turnOff();
         }
-
-        // Sleep for 1 second
         sleep(1);
+
+        if (currentTime > dailyOffTime) {
+            break;
+        }
     }
+
 
     return 0;
 }
