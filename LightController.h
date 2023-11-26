@@ -21,7 +21,7 @@ public:
     std::tm getDailyOn();
     std::tm getDailyOff();
 
-    // Overloaded operators
+    // Overloaded operators for debugging
     friend std::ostream& operator<<(std::ostream& os, const LightController& lc);
 
 private:
