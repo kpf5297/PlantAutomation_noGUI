@@ -44,7 +44,7 @@ public:
         SPS_860 = 0x00E0            // 860 samples per second
     };
 
-    ADS1115(uint8_t address);
+    ADS1115(uint8_t address, Mux muxSelect);
     ~ADS1115();
 
     int16_t read(Mux mux, Pga pga, Mode mode, DataRate dataRate);
@@ -66,3 +66,4 @@ private:
 };
 
 #endif // ADS1115_H
+
