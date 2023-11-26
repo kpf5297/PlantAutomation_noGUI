@@ -7,7 +7,7 @@
 #include <linux/i2c-dev.h>
 #include <sys/ioctl.h>
 
-ADS1115::ADS1115(uint8_t address) : m_address(address) {
+ADS1115::ADS1115(uint8_t address, Mux muxSelect) : m_address(address) {
 
     // Set default values
     m_buf[0] = 0;
@@ -15,7 +15,9 @@ ADS1115::ADS1115(uint8_t address) : m_address(address) {
     m_buf[2] = 0;
 
     // Set mux to AIN0_GND
-    mux = ADS1115::Mux::AIN0_GND;
+    // mux = ADS1115::Mux::AIN0_GND;
+    mux = muxSelect;
+
 
     // Set pga to 4.096V
     pga = ADS1115::Pga::FS_4_096V;
