@@ -1,107 +1,119 @@
+// LightController.cpp
 #include "LightController.h"
 
-LightController::LightController(int pin, const std::tm& dailyOn, const std::tm& dailyOff) {
-    // Set the pin number
+// Constructor
+// pin: GPIO pin number
+// dailyOn: Time to turn on light after activation
+// dailyOff: Time to turn off light after activation
+LightController::LightController(int pin, const time_t& dailyOn, const time_t& dailyOff) {
+    // Set GPIO pin number
     pinNum = pin;
 
-    // Set the daily on/off times
+    // Set daily on and off times
     dailyOnTime = dailyOn;
     dailyOffTime = dailyOff;
 
-    // Set the initial state to off
+    // Set light status
     on = false;
 
-    // Open the chip
+    // Open GPIO chip
     chip = gpiod_chip_open("/dev/gpiochip0");
 
-    // Get the line
+    // Request GPIO line
     line = gpiod_chip_get_line(chip, pinNum);
 
-    // Request the line
-    gpiod_line_request_output(line, "LED", 0);
+    // Set GPIO line direction to output
+    gpiod_line_request_output(line, "LightController", 0);
+
+    // Turn off light
+    gpiod_line_set_value(line, 0);
 }
 
+// Overloaded Constructor
+// pin: GPIO pin number
 LightController::LightController(int pin) {
-    // Set the pin number
+    // Set GPIO pin number
     pinNum = pin;
 
-    // Set the initial state to off
+    // Set light status
     on = false;
 
-    // Open the chip
+    // Open GPIO chip
     chip = gpiod_chip_open("/dev/gpiochip0");
 
-    // Get the line
+    // Request GPIO line
     line = gpiod_chip_get_line(chip, pinNum);
 
-    // Request the line
-    gpiod_line_request_output(line, "LED", 0);
+    // Set GPIO line direction to output
+    gpiod_line_request_output(line, "LightController", 0);
+
+    // Turn off light
+    gpiod_line_set_value(line, 0);
 }
 
+// Destructor
 LightController::~LightController() {
-    // Release the line
-    gpiod_line_release(line);
-
-    // Close the chip
+    // Close GPIO chip
     gpiod_chip_close(chip);
+
+    // Free GPIO line
+    gpiod_line_release(line);
 }
 
+// Turn on light
 void LightController::turnOn() {
-    // Turn on the lights
+    // Turn on light
     gpiod_line_set_value(line, 1);
 
-    // Set the state to on
+    // Set light status
     on = true;
 }
 
+// Turn off light
 void LightController::turnOff() {
-    // Turn off the lights
+    // Turn off light
     gpiod_line_set_value(line, 0);
 
-    // Set the state to off
+    // Set light status
     on = false;
 }
 
+// Toggle light status
 void LightController::toggle() {
-    // Toggle the lights
-    gpiod_line_set_value(line, !on);
+    // Toggle light status
+    if (on) {
+        turnOff();
+    } else {
+        turnOn();
+    }
 
-    // Set the state to the opposite of what it was
+    // Set light status
     on = !on;
 }
 
+// Get light status
 bool LightController::isOn() {
-    // Return the state
     return on;
 }
 
-void LightController::setDailyOn(const std::tm& time) {
-    // Set the daily on time
+// Set time to turn on light after activation
+void LightController::setDailyOn(const time_t time) {
     dailyOnTime = time;
 }
 
-void LightController::setDailyOff(const std::tm& time) {
-    // Set the daily off time
+// Set time to turn off light after activation
+void LightController::setDailyOff(const time_t time) {
     dailyOffTime = time;
 }
 
-std::tm LightController::getDailyOn() {
-    // Return the daily on time
+// Get time to turn on light after activation
+time_t LightController::getDailyOnTime() {
     return dailyOnTime;
 }
 
-std::tm LightController::getDailyOff() {
-    // Return the daily off time
+// Get time to turn off light after activation
+time_t LightController::getDailyOffTime() {
     return dailyOffTime;
 }
 
-// Overloaded operators
-std::ostream& operator<<(std::ostream& os, const LightController& lc) {
-    os << "LightController: " << lc.pinNum << " is ";
-    if (lc.on) {
-        os << "on";
-    } else {
-        os << "off";
-    }
-    return os;
-}
+

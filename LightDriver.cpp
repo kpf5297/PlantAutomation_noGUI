@@ -1,5 +1,5 @@
 /*
-    Compile with:   g++ -I/home/kpf5297/Code/ManualControl driver.cpp Logging.cpp LightController.cpp -o D -lgpiod -lrt -lpthread
+    Compile with:   g++ -I/home/kpf5297/Code/ManualControl LightDriver.cpp Logging.cpp LightController.cpp -o LightDriver -lgpiod -lrt -lpthread
 
 */
 #include <unistd.h>
@@ -19,8 +19,8 @@ int main() {
     // onTime->tm_mday = 25;
     // onTime->tm_mon = 11 - 1;
     // onTime->tm_year = 2023 - 1900;
-    onTime->tm_hour = 04;
-    onTime->tm_min = 54;
+    onTime->tm_hour = 11;
+    onTime->tm_min = 46;
     onTime->tm_sec = 0;
     dailyOnTime = mktime(onTime);
 
@@ -31,14 +31,14 @@ int main() {
     // offTime->tm_mday = 25;
     // offTime->tm_mon = 11 - 1;
     // offTime->tm_year = 2023 - 1900;
-    offTime->tm_hour = 04;
-    offTime->tm_min = 54;
+    offTime->tm_hour = 11;
+    offTime->tm_min = 46;
     offTime->tm_sec = 30;
     dailyOffTime = mktime(offTime);
 
     // Create the light controllers
-    LightController blueLED(BLUE_LED_PIN, *onTime, *offTime);
-    LightController greenLED(GREEN_LED_PIN, *onTime, *offTime);
+    LightController blueLED(BLUE_LED_PIN, dailyOnTime, dailyOffTime);
+    LightController greenLED(GREEN_LED_PIN, dailyOnTime, dailyOffTime);
 
     // Get the current time
     time_t currentTime = time(NULL);
@@ -50,7 +50,7 @@ int main() {
         currentTime = time(NULL);
 
         // Turn on the lights if it's between the on and off times
-        if (currentTime > dailyOnTime && currentTime < dailyOffTime) {
+        if (currentTime > blueLED.getDailyOnTime() && currentTime < blueLED.getDailyOffTime()) {
 
             // Turn on the lights
             blueLED.turnOn();
@@ -66,7 +66,7 @@ int main() {
         sleep(1);
 
         // Break if the current time is greater than the off time
-        if (currentTime > dailyOffTime) {
+        if (currentTime > blueLED.getDailyOffTime()) {
             break;
         }
     }
