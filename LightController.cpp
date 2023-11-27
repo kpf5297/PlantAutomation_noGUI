@@ -1,6 +1,7 @@
 // LightController.cpp
 #include "LightController.h"
 
+
 /*
     Constructor
     pin: GPIO pin number
@@ -55,6 +56,7 @@ LightController::LightController(int pin) {
     gpiod_line_set_value(line, 0);
 }
 
+
 /*
     Destructor
 */
@@ -65,6 +67,7 @@ LightController::~LightController() {
     // Free GPIO line
     gpiod_line_release(line);
 }
+
 
 /*
     Turn on light
@@ -77,6 +80,7 @@ void LightController::turnOn() {
     on = true;
 }
 
+
 /*
     Turn off light
 */
@@ -87,6 +91,7 @@ void LightController::turnOff() {
     // Set light status
     on = false;
 }
+
 
 /*
     Toggle light status
@@ -103,12 +108,14 @@ void LightController::toggle() {
     on = !on;
 }
 
+
 /*
     Get light status
 */
 bool LightController::isOn() {
     return on;
 }
+
 
 /*
     Set time to turn on light after activation
@@ -118,6 +125,7 @@ void LightController::setDailyOn(const time_t time) {
     dailyOnTime = time;
 }
 
+
 /*
     Set time to turn off light after activation
     time: Time to turn off light after activation
@@ -126,12 +134,14 @@ void LightController::setDailyOff(const time_t time) {
     dailyOffTime = time;
 }
 
+
 /*
     Get time to turn on light after activation
 */
 time_t LightController::getDailyOnTime() {
     return dailyOnTime;
 }
+
 
 /*
     Get time to turn off light after activation

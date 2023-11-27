@@ -88,6 +88,7 @@ int WaterPump::getActivationDuration() {
     return activationDuration;
 }
 
+
 /*
     Set time to ignore water pump activation after last activation
     ignoreTimeSeconds: Time to ignore water pump activation after last activation
@@ -102,3 +103,4 @@ void WaterPump::setIgnoreTime(int ignoreTimeSeconds) {
 int WaterPump::getIgnoreTime() {
     return ignoreTime;
 }
+

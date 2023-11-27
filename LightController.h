@@ -20,6 +20,7 @@ public:
     // Destructor
     ~LightController();
 
+
     void turnOn();                              // Turn on light
     void turnOff();                             // Turn off light
     void toggle();                              // Toggle light status
@@ -29,16 +30,19 @@ public:
     time_t getDailyOnTime();                    // Get time to turn on light after activation
     time_t getDailyOffTime();                   // Get time to turn off light after activation
 
+
     // Overloaded operators for debugging
     friend std::ostream& operator<<(std::ostream& os, const LightController& lc);
 
 private:
+
     gpiod_chip *chip;       // GPIO chip
     gpiod_line *line;       // GPIO line
     int pinNum;             // GPIO pin number
     bool on;                // Light status
     time_t dailyOnTime;     // Time to turn on light after activation
     time_t dailyOffTime;    // Time to turn off light after activation
+
 };
 
 #endif // LIGHTCONTROLLER_H

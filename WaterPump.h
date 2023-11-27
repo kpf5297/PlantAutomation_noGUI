@@ -7,6 +7,7 @@
 class WaterPump {
 public:
     // Constructor
+
     WaterPump(int pin, int ignoreTimeSeconds, int pumpTimeSeconds);
 
     // Destructor

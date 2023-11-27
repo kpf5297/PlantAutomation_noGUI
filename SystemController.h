@@ -8,13 +8,6 @@
 class SystemController {
 public:
     SystemController(uint8_t soilSensorAddress, ADS1115::Mux soilSensorMux,
-                     int lightControllerPin, time_t lightOnTime, time_t lightOffTime
-                        int waterPumpPin, int pumpIgnoreTime, int pumpDuration);
-    ~SystemController();
-
-    void run();
-    
-
-private:
-
-
+                     int lightControllerPin, time_t lightOnTime, time_t lightOffTime,
+                     int waterPumpPin, int pumpIgnoreTime, int pumpDuration);
+   
