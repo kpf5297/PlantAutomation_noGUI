@@ -1,5 +1,12 @@
+// WaterPump.cpp
 #include "WaterPump.h"
 
+/*
+    Constructor
+    pin: GPIO pin number
+    ignoreTimeSeconds: Time to ignore water pump activation after last activation
+    pumpTimeSeconds: Time to run water pump
+*/
 WaterPump::WaterPump(int pin, int ignoreTimeSeconds, int pumpTimeSeconds) {
     // Store the pin number
     pinNum = pin;
@@ -24,26 +31,33 @@ WaterPump::WaterPump(int pin, int ignoreTimeSeconds, int pumpTimeSeconds) {
 }
 
 
+/*
+    Destructor
+*/
 WaterPump::~WaterPump() {
     gpiod_line_release(line);
     gpiod_chip_close(chip);
 }
 
+/*
+    Turn on water pump
+*/
 void WaterPump::activate() {
     gpiod_line_set_value(line, 1);
     isRunning = true;
-
-    // Update the last activation time
-    std::time_t currentTime = std::time(nullptr);
-    std::tm* timeInfo = std::localtime(&currentTime);
-    lastActivation = *timeInfo;
 }
 
+/*
+    Turn off water pump
+*/
 void WaterPump::deactivate() {
     gpiod_line_set_value(line, 0);
     isRunning = false;
 }
 
+/*
+    Toggle water pump status
+*/
 void WaterPump::toggle() {
     if (isRunning) {
         deactivate();
@@ -52,24 +66,41 @@ void WaterPump::toggle() {
     }
 }
 
+/*
+    Get water pump status
+*/
 bool WaterPump::getStatus() {
     return isRunning;
 }
 
+/*
+    Set water pump activation duration
+    pumpTimeSeconds: Time to run water pump
+*/
 void WaterPump::setActivationDuration(int pumpTimeSeconds) {
     activationDuration = pumpTimeSeconds;
 }
 
+/*
+    Get water pump activation duration
+*/
 int WaterPump::getActivationDuration() {
     return activationDuration;
 }
 
-std::tm WaterPump::getLastActivation() {
-    return lastActivation;
+
+/*
+    Set time to ignore water pump activation after last activation
+    ignoreTimeSeconds: Time to ignore water pump activation after last activation
+*/
+void WaterPump::setIgnoreTime(int ignoreTimeSeconds) {
+    ignoreTime = ignoreTimeSeconds;
 }
 
+/*
+    Get time to ignore water pump activation after last activation
+*/
 int WaterPump::getIgnoreTime() {
     return ignoreTime;
 }
-
 
