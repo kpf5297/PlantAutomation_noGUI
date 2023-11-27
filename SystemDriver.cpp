@@ -17,6 +17,8 @@ int PUMP_WAIT_TIME = 10;
 int PUMP_DURATION = 5;
 ADS1115::Mux MUX_SELECT = ADS1115::Mux::AIN0_GND;
 
+int LIGHT_ON_DURATION = 5;
+
 int main() {
 
     // Set daily on time for the current date
@@ -54,6 +56,9 @@ int main() {
     // Set the soil moisture threshold
     systemController.setSoilMoistureThreshold(0.5);
 
+    time_t debug_Ligh_On_Time = time(NULL);
+    time_t debug_Ligh_Off_Time = time(NULL);
+
     // Loop forever
     while (true) {
 
@@ -64,10 +69,12 @@ int main() {
         std::cout << "Current time: " << ctime(&currentTime) << std::endl;
 
         // cout daily on time
-        std::cout << "Daily on time: " << ctime(&dailyOnTime) << std::endl;
+        debug_Ligh_On_Time = systemController.getLightOnTime();
+        std::cout << "Daily on time: " << ctime(&debug_Ligh_On_Time) << std::endl;
 
         // cout daily off time
-        std::cout << "Daily off time: " << ctime(&dailyOffTime) << std::endl;
+        debug_Ligh_Off_Time = systemController.getLightOffTime();
+        std::cout << "Daily off time: " << ctime(&debug_Ligh_Off_Time) << std::endl;
 
         // Activate the garden components
         systemController.controlLight(currentTime);
@@ -76,8 +83,13 @@ int main() {
         std::this_thread::sleep_for(std::chrono::seconds(1));
 
         // Break once the current time is past the daily off time
-        if (currentTime > dailyOffTime) {
-            break;
+        if (currentTime >  systemController.getLightOffTime()) {
+
+            // Update ontime to be 1 minute in the future from the current time
+            systemController.setLightOnTime(currentTime + 60);
+
+            // Update offtime to be 1 minute in the future from the current time
+            systemController.setLightOffTime(currentTime + LIGHT_ON_DURATION + 60);
         }
 
     }

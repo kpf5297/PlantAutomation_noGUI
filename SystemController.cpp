@@ -211,3 +211,12 @@ bool SystemController::isTimeInRange(const time_t& time, const time_t& start, co
     return (difftime(time, start) >= 0) && (difftime(end, time) >= 0);
 }
 
+/**
+ * @brief Helper function to add seconds to a time_t.
+ * @param time Time to add seconds to.
+ * @param seconds Seconds to add.
+ * @return Time_t with seconds added.
+ */
+time_t SystemController::addSecondsToTime(const time_t& time, const int& seconds) {
+    return time + seconds;
+}
