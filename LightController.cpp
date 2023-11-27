@@ -1,13 +1,11 @@
-// LightController.cpp
 #include "LightController.h"
 
-
-/*
-    Constructor
-    pin: GPIO pin number
-    dailyOn: Time to turn on light after activation
-    dailyOff: Time to turn off light after activation
-*/
+/**
+ * @brief Constructor for LightController.
+ * @param pin GPIO pin number.
+ * @param dailyOn Time to turn on light after activation.
+ * @param dailyOff Time to turn off light after activation.
+ */
 LightController::LightController(int pin, const time_t& dailyOn, const time_t& dailyOff) {
     // Set GPIO pin number
     pinNum = pin;
@@ -32,10 +30,10 @@ LightController::LightController(int pin, const time_t& dailyOn, const time_t& d
     gpiod_line_set_value(line, 0);
 }
 
-/*
-    Overloaded Constructor
-    pin: GPIO pin number
-*/
+/**
+ * @brief Overloaded Constructor for LightController.
+ * @param pin GPIO pin number.
+ */
 LightController::LightController(int pin) {
     // Set GPIO pin number
     pinNum = pin;
@@ -56,10 +54,9 @@ LightController::LightController(int pin) {
     gpiod_line_set_value(line, 0);
 }
 
-
-/*
-    Destructor
-*/
+/**
+ * @brief Destructor for LightController.
+ */
 LightController::~LightController() {
     // Close GPIO chip
     gpiod_chip_close(chip);
@@ -68,10 +65,9 @@ LightController::~LightController() {
     gpiod_line_release(line);
 }
 
-
-/*
-    Turn on light
-*/
+/**
+ * @brief Turn on light.
+ */
 void LightController::turnOn() {
     // Turn on light
     gpiod_line_set_value(line, 1);
@@ -80,10 +76,9 @@ void LightController::turnOn() {
     on = true;
 }
 
-
-/*
-    Turn off light
-*/
+/**
+ * @brief Turn off light.
+ */
 void LightController::turnOff() {
     // Turn off light
     gpiod_line_set_value(line, 0);
@@ -92,10 +87,9 @@ void LightController::turnOff() {
     on = false;
 }
 
-
-/*
-    Toggle light status
-*/
+/**
+ * @brief Toggle light status.
+ */
 void LightController::toggle() {
     // Toggle light status
     if (on) {
@@ -108,46 +102,42 @@ void LightController::toggle() {
     on = !on;
 }
 
-
-/*
-    Get light status
-*/
+/**
+ * @brief Get light status.
+ * @return True if the light is on, false otherwise.
+ */
 bool LightController::isOn() {
     return on;
 }
 
-
-/*
-    Set time to turn on light after activation
-    time: Time to turn on light after activation
-*/
+/**
+ * @brief Set time to turn on light after activation.
+ * @param time Time to turn on light after activation.
+ */
 void LightController::setDailyOn(const time_t time) {
     dailyOnTime = time;
 }
 
-
-/*
-    Set time to turn off light after activation
-    time: Time to turn off light after activation
-*/
+/**
+ * @brief Set time to turn off light after activation.
+ * @param time Time to turn off light after activation.
+ */
 void LightController::setDailyOff(const time_t time) {
     dailyOffTime = time;
 }
 
-
-/*
-    Get time to turn on light after activation
-*/
+/**
+ * @brief Get time to turn on light after activation.
+ * @return Time to turn on light.
+ */
 time_t LightController::getDailyOnTime() {
     return dailyOnTime;
 }
 
-
-/*
-    Get time to turn off light after activation
-*/
+/**
+ * @brief Get time to turn off light after activation.
+ * @return Time to turn off light.
+ */
 time_t LightController::getDailyOffTime() {
     return dailyOffTime;
 }
-
-

@@ -1,12 +1,17 @@
-// WaterPump.cpp
 #include "WaterPump.h"
 
-/*
-    Constructor
-    pin: GPIO pin number
-    ignoreTimeSeconds: Time to ignore water pump activation after last activation
-    pumpTimeSeconds: Time to run water pump
-*/
+/**
+ * @file WaterPump.cpp
+ *
+ * @brief Implementation of the WaterPump class.
+ */
+
+/**
+ * @brief Constructor for WaterPump.
+ * @param pin GPIO pin number.
+ * @param ignoreTimeSeconds Time to ignore water pump activation after the last activation.
+ * @param pumpTimeSeconds Time to run the water pump.
+ */
 WaterPump::WaterPump(int pin, int ignoreTimeSeconds, int pumpTimeSeconds) {
     // Store the pin number
     pinNum = pin;
@@ -30,34 +35,33 @@ WaterPump::WaterPump(int pin, int ignoreTimeSeconds, int pumpTimeSeconds) {
     gpiod_line_set_value(line, 0);
 }
 
-
-/*
-    Destructor
-*/
+/**
+ * @brief Destructor for WaterPump.
+ */
 WaterPump::~WaterPump() {
     gpiod_line_release(line);
     gpiod_chip_close(chip);
 }
 
-/*
-    Turn on water pump
-*/
+/**
+ * @brief Turn on the water pump.
+ */
 void WaterPump::activate() {
     gpiod_line_set_value(line, 1);
     isRunning = true;
 }
 
-/*
-    Turn off water pump
-*/
+/**
+ * @brief Turn off the water pump.
+ */
 void WaterPump::deactivate() {
     gpiod_line_set_value(line, 0);
     isRunning = false;
 }
 
-/*
-    Toggle water pump status
-*/
+/**
+ * @brief Toggle the water pump status.
+ */
 void WaterPump::toggle() {
     if (isRunning) {
         deactivate();
@@ -66,41 +70,42 @@ void WaterPump::toggle() {
     }
 }
 
-/*
-    Get water pump status
-*/
+/**
+ * @brief Get the water pump status.
+ * @return True if the water pump is running, false otherwise.
+ */
 bool WaterPump::getStatus() {
     return isRunning;
 }
 
-/*
-    Set water pump activation duration
-    pumpTimeSeconds: Time to run water pump
-*/
+/**
+ * @brief Set the water pump activation duration.
+ * @param pumpTimeSeconds Time to run the water pump.
+ */
 void WaterPump::setActivationDuration(int pumpTimeSeconds) {
     activationDuration = pumpTimeSeconds;
 }
 
-/*
-    Get water pump activation duration
-*/
+/**
+ * @brief Get the water pump activation duration.
+ * @return The duration to run the water pump.
+ */
 int WaterPump::getActivationDuration() {
     return activationDuration;
 }
 
-
-/*
-    Set time to ignore water pump activation after last activation
-    ignoreTimeSeconds: Time to ignore water pump activation after last activation
-*/
+/**
+ * @brief Set the time to ignore water pump activation after the last activation.
+ * @param ignoreTimeSeconds Time to ignore water pump activation after the last activation.
+ */
 void WaterPump::setIgnoreTime(int ignoreTimeSeconds) {
     ignoreTime = ignoreTimeSeconds;
 }
 
-/*
-    Get time to ignore water pump activation after last activation
-*/
+/**
+ * @brief Get the time to ignore water pump activation after the last activation.
+ * @return Time to ignore water pump activation after the last activation.
+ */
 int WaterPump::getIgnoreTime() {
     return ignoreTime;
 }
-

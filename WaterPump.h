@@ -1,26 +1,70 @@
-// WaterPump.h
 #ifndef WATERPUMP_H
 #define WATERPUMP_H
 
 #include <gpiod.h>
 
+/**
+ * @brief The WaterPump class represents a water pump controlled by GPIO.
+ */
 class WaterPump {
 public:
-    // Constructor
-
+    /**
+     * @brief Constructor for WaterPump.
+     * @param pin GPIO pin number.
+     * @param ignoreTimeSeconds The number of seconds to ignore the pump after activation.
+     * @param pumpTimeSeconds The number of seconds to run the pump when activated.
+     */
     WaterPump(int pin, int ignoreTimeSeconds, int pumpTimeSeconds);
 
-    // Destructor
+    /**
+     * @brief Destructor for WaterPump.
+     */
     ~WaterPump();
 
-    void activate();                                    // Turn on water pump
-    void deactivate();                                  // Turn off water pump
-    void toggle();                                      // Toggle water pump status
-    bool getStatus();                                   // Get water pump status
-    void setActivationDuration(int pumpTimeSeconds);    // Set water pump activation duration
-    int getActivationDuration();                        // Get water pump activation duration
-    void setIgnoreTime(int ignoreTimeSeconds);          // Set time to ignore water pump activation after last activation
-    int getIgnoreTime();                                // Get time to ignore water pump activation after last activation
+    /**
+     * @brief Activate the water pump.
+     */
+    void activate();
+
+    /**
+     * @brief Deactivate the water pump.
+     */
+    void deactivate();
+
+    /**
+     * @brief Toggle the water pump status.
+     */
+    void toggle();
+
+    /**
+     * @brief Get the water pump status.
+     * @return True if the water pump is running, false otherwise.
+     */
+    bool getStatus();
+
+    /**
+     * @brief Set the water pump activation duration.
+     * @param pumpTimeSeconds The duration to run the water pump when activated.
+     */
+    void setActivationDuration(int pumpTimeSeconds);
+
+    /**
+     * @brief Get the water pump activation duration.
+     * @return The duration to run the water pump when activated.
+     */
+    int getActivationDuration();
+
+    /**
+     * @brief Set the time to ignore water pump activation after the last activation.
+     * @param ignoreTimeSeconds The number of seconds to ignore the pump after activation.
+     */
+    void setIgnoreTime(int ignoreTimeSeconds);
+
+    /**
+     * @brief Get the time to ignore water pump activation after the last activation.
+     * @return The number of seconds to ignore the pump after activation.
+     */
+    int getIgnoreTime();
 
 private:
     gpiod_chip* chip;           // GPIO chip
@@ -33,5 +77,3 @@ private:
 };
 
 #endif // WATERPUMP_H
-
-
