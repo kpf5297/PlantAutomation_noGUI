@@ -23,14 +23,6 @@ double SoilSensor::readMoisture() {
     // Read the analog input
     int16_t rawValue = ads1115.read(ADS1115::Mux::AIN0_GND, ADS1115::Pga::FS_4_096V, ADS1115::Mode::SINGLE_SHOT, ADS1115::DataRate::SPS_128);
 
-    // Print the raw value
-    std::cout << "Raw Value: " << rawValue << std::endl;
-
-    // Print the wet and dry calibration values
-    std::cout << "Wet Value: " << calWetValue << std::endl;
-    std::cout << "Dry Value: " << calDryValue << std::endl;
-    
-
     // Map the voltage to a moisture value
     moisture = map(rawValue, calDryValue, calWetValue, 0.0, 100.0);
 
