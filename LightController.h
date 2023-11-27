@@ -4,6 +4,7 @@
 
 #include <gpiod.h>
 #include <ctime>
+#include <iostream>
 
 class LightController {
 public:
@@ -89,3 +90,4 @@ private:
 };
 
 #endif // LIGHTCONTROLLER_H
+
