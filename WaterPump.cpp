@@ -67,3 +67,9 @@ int WaterPump::getActivationDuration() {
 std::tm WaterPump::getLastActivation() {
     return lastActivation;
 }
+
+int WaterPump::getIgnoreTime() {
+    return ignoreTime;
+}
+
+
