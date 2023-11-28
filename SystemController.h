@@ -141,6 +141,12 @@ public:
      */
     time_t addSecondsToTime(const time_t& time, const int& seconds);
 
+    /**
+     * @brief Get the next time to activate the water pump.
+     * @return Time to activate the water pump.
+     */
+    time_t getNextPumpTime();
+
 private:
     SoilSensor soilSensor;          // Soil sensor controlled by the controller
     LightController lightController; // Light controller controlled by the controller
