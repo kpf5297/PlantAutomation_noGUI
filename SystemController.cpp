@@ -77,6 +77,7 @@ void SystemController::deactivateGarden(const time_t currentTime) {
 
 /**
  * @brief Control the light based on the current time.
+ * @details The light will be activated if the current time is within the light activation time.
  * @param currentTime Current time.
  */
 void SystemController::controlLight(const time_t currentTime) {
@@ -90,17 +91,37 @@ void SystemController::controlLight(const time_t currentTime) {
 
 /**
  * @brief Control the water pump based on the current time.
+ * @details The water pump will be activated if the current time is within the water pump activation time and the soil
+ *         moisture is below the threshold.
  * @param currentTime Current time.
  */
 void SystemController::controlWaterPump(const time_t currentTime) {
     // Check if the current time is within the water pump activation time
+    std::cout << "In Function controlWaterPump" << std::endl;
+    std::cout << "Current Time: " << ctime(&currentTime) << std::endl;
+    std::cout << "Water Pump On Time: " << ctime(&waterPumpOnTime) << std::endl;
+    std::cout << "Water Pump Off Time: " << ctime(&waterPumpOffTime) << std::endl;
+
     if (isTimeInRange(currentTime, waterPumpOnTime, waterPumpOffTime)) {
         // Check if the soil moisture is below the threshold
         if (readSoilMoisture() < soilMoistureThreshold) {
             waterPump.activate();
+
+            // Update the water pump with wait time
+            this->waterPumpOnTime = addSecondsToTime(currentTime, this->pumpIgnoreTime);
+            this->waterPumpOffTime = addSecondsToTime(this->waterPumpOnTime, this->pumpDuration);
+
+                        // cout update time information
+            std::cout << "UPDATED Water Pump On Time: " << ctime(&waterPumpOnTime) << std::endl;
+            std::cout << "UPDATED Water Pump Off Time: " << ctime(&waterPumpOffTime) << std::endl;
         }
     } else {
         waterPump.deactivate();
+    }
+
+    if (currentTime > this->waterPumpOffTime) {
+        this->waterPumpOnTime = addSecondsToTime(currentTime, this->pumpIgnoreTime);
+        this->waterPumpOffTime = addSecondsToTime(this->waterPumpOnTime, this->pumpDuration);
     }
 }
 
@@ -209,5 +230,23 @@ void SystemController::setPumpDuration(int pumpDuration) {
  */
 bool SystemController::isTimeInRange(const time_t& time, const time_t& start, const time_t& end) {
     return (difftime(time, start) >= 0) && (difftime(end, time) >= 0);
+}
+
+/**
+ * @brief Helper function to add seconds to a time_t.
+ * @param time Time to add seconds to.
+ * @param seconds Seconds to add.
+ * @return Time_t with seconds added.
+ */
+time_t SystemController::addSecondsToTime(const time_t& time, const int& seconds) {
+    return time + seconds;
+}
+
+/**
+ * @brief Get the next time to activate the water pump.
+ * @return Next time to activate the water pump.
+ */
+time_t SystemController::getNextPumpTime() {
+    return addSecondsToTime(waterPumpOffTime, pumpIgnoreTime);
 }
 
