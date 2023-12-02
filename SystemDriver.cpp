@@ -11,14 +11,20 @@
 
 
 int16_t ADS1115_ADDRESS = 0x48;
-int LIGHT_PIN = 27;
-int PUMP_PIN = 17;
-int LIGHT_WAIT_TIME = 45;
-int PUMP_WAIT_TIME = 10;
+int PUMP_WAIT_TIME = 30;
 int PUMP_DURATION = 5;
-ADS1115::Mux MUX_SELECT = ADS1115::Mux::AIN0_GND;
-
+int LIGHT_WAIT_TIME = 45;
 int LIGHT_ON_DURATION = 5;
+
+// Top Shelf
+int TOP_LIGHT_PIN = 27;
+int TOP_PUMP_PIN = 17;
+ADS1115::Mux TS_MUX_SELECT = ADS1115::Mux::AIN0_GND;
+
+// Bottom Shelf
+int BOTTOM_LIGHT_PIN = 24;
+int BOTTOM_PUMP_PIN = 23;
+ADS1115::Mux BS_MUX_SELECT = ADS1115::Mux::AIN1_GND;
 
 int main() {
 
@@ -49,23 +55,29 @@ int main() {
     time_t currentTime = time(NULL);
 
     // Initialize system controller
-    SystemController systemController(ADS1115_ADDRESS, MUX_SELECT, LIGHT_PIN, dailyOnTime, dailyOffTime, PUMP_PIN, PUMP_WAIT_TIME, PUMP_DURATION);
+    SystemController topShelfControl(ADS1115_ADDRESS, TS_MUX_SELECT, TOP_LIGHT_PIN, dailyOnTime, dailyOffTime, TOP_PUMP_PIN, PUMP_WAIT_TIME, PUMP_DURATION);
 
-    // Update the pump end time to be 1 minute in the past so the pump starts with its wait duration and does not activate immediatly
-    systemController.setWaterPumpOffTime(currentTime - PUMP_WAIT_TIME);
+    SystemController bottomShelfControl(ADS1115_ADDRESS, BS_MUX_SELECT, BOTTOM_LIGHT_PIN, dailyOnTime, dailyOffTime, BOTTOM_PUMP_PIN, PUMP_WAIT_TIME, PUMP_DURATION);
 
-    // Update the light end time to be 1 minute in the past so the light starts with its wait duration and does not activate immediatly
-    systemController.setLightOffTime(currentTime - LIGHT_ON_DURATION);
+ 
+    topShelfControl.setWaterPumpOffTime(currentTime - PUMP_WAIT_TIME);      // Set the water pump off time to be 30 seconds in the past
+    topShelfControl.setLightOffTime(currentTime - LIGHT_ON_DURATION);       // Set the light off time to be 5 seconds in the past
+    std::cout << "Calibrating soil sensor on top shelf" << std::endl;       // Calibrate the soil sensor
+    topShelfControl.calibrateSoilSensor();                                  // Calibrate the soil sensor
+    topShelfControl.setSoilMoistureThreshold(50);                           // Set the soil moisture threshold to 50
 
-    // Calibrate the soil sensor
-    systemController.calibrateSoilSensor();
+    bottomShelfControl.setWaterPumpOffTime(currentTime - PUMP_WAIT_TIME);   // Set the water pump off time to be 30 seconds in the past
+    bottomShelfControl.setLightOffTime(currentTime - LIGHT_ON_DURATION);    // Set the light off time to be 5 seconds in the past
+    std::cout << "Calibrating soil sensor on bottom shelf" << std::endl;    // Calibrate the soil sensor
+    bottomShelfControl.calibrateSoilSensor();                               // Calibrate the soil sensor
+    bottomShelfControl.setSoilMoistureThreshold(50);                        // Set the soil moisture threshold to 50
 
-    // Set the soil moisture threshold
-    systemController.setSoilMoistureThreshold(50);
-
-    time_t debug_Ligh_On_Time = time(NULL);
-    time_t debug_Ligh_Off_Time = time(NULL);
-    time_t debug_Next_Pump_Time = time(NULL);
+    time_t TS_debug_Ligh_On_Time = time(NULL);
+    time_t TS_debug_Ligh_Off_Time = time(NULL);
+    time_t TS_debug_Next_Pump_Time = time(NULL);
+    time_t BS_debug_Ligh_On_Time = time(NULL);
+    time_t BS_debug_Ligh_Off_Time = time(NULL);
+    time_t BS_debug_Next_Pump_Time = time(NULL);
 
     // Loop forever
     while (true) {
@@ -77,40 +89,62 @@ int main() {
         std::cout << "Current time: " << ctime(&currentTime) << std::endl;
 
         // cout daily on time
-        debug_Ligh_On_Time = systemController.getLightOnTime();
-        std::cout << "Daily on time: " << ctime(&debug_Ligh_On_Time) << std::endl;
+        TS_debug_Ligh_On_Time = topShelfControl.getLightOnTime();
+        std::cout << "Daily on time: " << ctime(&TS_debug_Ligh_On_Time) << std::endl;
 
         // cout daily off time
-        debug_Ligh_Off_Time = systemController.getLightOffTime();
-        std::cout << "Daily off time: " << ctime(&debug_Ligh_Off_Time) << std::endl;
+        TS_debug_Ligh_Off_Time = topShelfControl.getLightOffTime();
+        std::cout << "Daily off time: " << ctime(&TS_debug_Ligh_Off_Time) << std::endl;
 
         // Activate the garden components
-        systemController.controlLight(currentTime);
+        topShelfControl.controlLight(currentTime);
+        bottomShelfControl.controlLight(currentTime);
 
         // Wait 1 second
         std::this_thread::sleep_for(std::chrono::seconds(1));
 
         // Break once the current time is past the daily off time
-        if (currentTime >  systemController.getLightOffTime()) {
+        if (currentTime >  topShelfControl.getLightOffTime()) {
 
             // Update ontime to be 45 seconds in the future from the current time
-            systemController.setLightOnTime(currentTime + LIGHT_WAIT_TIME);
+            topShelfControl.setLightOnTime(currentTime + LIGHT_WAIT_TIME);
 
             // Update offtime to be 45 seconds in the future from the current time
-            systemController.setLightOffTime(currentTime + LIGHT_ON_DURATION + LIGHT_WAIT_TIME);
+            topShelfControl.setLightOffTime(currentTime + LIGHT_ON_DURATION + LIGHT_WAIT_TIME);
         }
 
-        // cout soil moisture and threshold
-        std::cout << "Soil moisture: " << systemController.readSoilMoisture() << std::endl;
-        std::cout << "Soil moisture threshold: " << systemController.getSoilMoistureThreshold() << std::endl;
+        // Break once the current time is past the daily off time
+        if (currentTime >  bottomShelfControl.getLightOffTime()) {
 
-        debug_Next_Pump_Time = systemController.getNextPumpTime();
+            // Update ontime to be 45 seconds in the future from the current time
+            bottomShelfControl.setLightOnTime(currentTime + LIGHT_WAIT_TIME);
+
+            // Update offtime to be 45 seconds in the future from the current time
+            bottomShelfControl.setLightOffTime(currentTime + LIGHT_ON_DURATION + LIGHT_WAIT_TIME);
+        }
+
+        // cout soil moisture and threshold on top shelf
+        std::cout << "Top Shelf Soil moisture: " << topShelfControl.readSoilMoisture() << std::endl;
+        std::cout << "Top Shelf Soil moisture threshold: " << topShelfControl.getSoilMoistureThreshold() << std::endl;
+
+        // cout soil moisture and threshold on bottom shelf
+        std::cout << "Bottom Shelf Soil moisture: " << bottomShelfControl.readSoilMoisture() << std::endl;
+        std::cout << "Bottom SHelf Soil moisture threshold: " << bottomShelfControl.getSoilMoistureThreshold() << std::endl;
+
+        TS_debug_Next_Pump_Time = topShelfControl.getNextPumpTime();
 
         // cout next pump time
-        std::cout << "Next pump time: " << ctime(&debug_Next_Pump_Time) << std::endl;
+        std::cout << "Top Shelf Next pump time: " << ctime(&TS_debug_Next_Pump_Time) << std::endl;
+
+        BS_debug_Next_Pump_Time = bottomShelfControl.getNextPumpTime();
+
+        // cout next pump time
+        std::cout << "Bottom Shelf Next pump time: " << ctime(&BS_debug_Next_Pump_Time) << std::endl;
+
 
         // Activate the water components
-        systemController.controlWaterPump(currentTime);
+        topShelfControl.controlWaterPump(currentTime);
+        bottomShelfControl.controlWaterPump(currentTime);
     }
 
     return 0;

@@ -18,6 +18,8 @@ public:
     ADS1115 ads1115; // Composition: SoilSensor has an ADS1115 object
 
 private:
+
+    ADS1115::Mux mux;
     
     // Calibration constants
     static const int16_t CAL_WET_DEFAULT = 32768;   // 2^15

@@ -10,6 +10,7 @@
 
 SoilSensor::SoilSensor(uint8_t address, ADS1115::Mux muxSelect) : ads1115(address, muxSelect) {
     // Set default values
+    mux = muxSelect;
     moisture = 0.0;
     calWetValue = CAL_WET_DEFAULT;
     calDryValue = CAL_DRY_DEFAULT;
@@ -21,7 +22,7 @@ SoilSensor::~SoilSensor() {
 
 double SoilSensor::readMoisture() {
     // Read the analog input
-    int16_t rawValue = ads1115.read(ADS1115::Mux::AIN0_GND, ADS1115::Pga::FS_4_096V, ADS1115::Mode::SINGLE_SHOT, ADS1115::DataRate::SPS_128);
+    int16_t rawValue = ads1115.read(this->mux, ADS1115::Pga::FS_4_096V, ADS1115::Mode::SINGLE_SHOT, ADS1115::DataRate::SPS_128);
 
     // Map the voltage to a moisture value
     moisture = map(rawValue, calDryValue, calWetValue, 0.0, 100.0);
@@ -38,7 +39,7 @@ bool SoilSensor::calibrate() {
     std::cin.ignore();
 
     // Read the analog input
-    int16_t rawValue = ads1115.read(ADS1115::Mux::AIN0_GND, ADS1115::Pga::FS_4_096V, ADS1115::Mode::SINGLE_SHOT, ADS1115::DataRate::SPS_128);
+    int16_t rawValue = ads1115.read(this->mux, ADS1115::Pga::FS_4_096V, ADS1115::Mode::SINGLE_SHOT, ADS1115::DataRate::SPS_128);
 
     // Set the dry calibration value
     calDryValue = rawValue;
@@ -48,7 +49,7 @@ bool SoilSensor::calibrate() {
     std::cin.ignore();
 
     // Read the analog input
-    rawValue = ads1115.read(ADS1115::Mux::AIN0_GND, ADS1115::Pga::FS_4_096V, ADS1115::Mode::SINGLE_SHOT, ADS1115::DataRate::SPS_128);
+    rawValue = ads1115.read(this->mux, ADS1115::Pga::FS_4_096V, ADS1115::Mode::SINGLE_SHOT, ADS1115::DataRate::SPS_128);
 
     // Set the wet calibration value
     calWetValue = rawValue;
